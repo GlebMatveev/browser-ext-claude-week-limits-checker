@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "Claude Daily Budget Tracker",
+  "version": "1.0.0",
+  "description": "Adds daily budget tracking to Claude.ai usage page",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "claude-budget-tracker@example.com",
+      "strict_min_version": "109.0"
+    }
+  },
+  "permissions": ["notifications", "storage"],
+  "host_permissions": ["*://claude.ai/*"],
+  "content_scripts": [
+    {
+      "matches": ["*://claude.ai/settings/usage*"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "scripts": ["background.js"],
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "48": "icons/icon-48.png",
+    "96": "icons/icon-96.png"
+  }
+}
