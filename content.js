@@ -133,7 +133,7 @@
 
   // --- Rendering ---
 
-  function createBarBlock(label, segments, dayLabels, currentDayIndex, statusText, segmentLabels) {
+  function createBarBlock(label, segments, dayLabels, currentDayIndex, statusText, segmentLabels, fractionOfDay) {
     const block = document.createElement("div");
     block.className = "cbt-bar-block cbt-bar-row";
 
@@ -168,6 +168,12 @@
       const span = document.createElement("span");
       span.className = "cbt-day" + (i === currentDayIndex ? " cbt-today" : "");
       span.textContent = name;
+      if (i === currentDayIndex && fractionOfDay != null) {
+        const clock = document.createElement("span");
+        clock.className = "cbt-day-clock";
+        clock.style.background = `conic-gradient(currentColor ${fractionOfDay}turn, transparent ${fractionOfDay}turn)`;
+        span.appendChild(clock);
+      }
       dayRow.appendChild(span);
     });
     barWrapper.appendChild(dayRow);
@@ -244,7 +250,8 @@
         dayLabels,
         currentDayIndex,
         adaptiveStatus,
-        adaptiveLabels
+        adaptiveLabels,
+        fractionOfDay
       )
     );
 

@@ -67,6 +67,17 @@
   color: var(--text-100, #d4d4d4);
 }
 
+.cbt-day-clock {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  opacity: 0.7;
+}
+
 /* Segmented bar inherits styles from Tailwind classes on the element.
    Only override what's needed for segmented layout. */
 
