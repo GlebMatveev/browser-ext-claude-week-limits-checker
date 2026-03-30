@@ -82,10 +82,11 @@
     const dayStartMs = weekStart.getTime() + currentDayIndex * MS_PER_DAY;
     const fractionOfDay = Math.min(1, (now.getTime() - dayStartMs) / MS_PER_DAY);
 
+    const today = now.getDay(); // 0=Sun .. 6=Sat
     const dayLabels = [];
     for (let i = 0; i < 7; i++) {
-      const d = new Date(weekStart.getTime() + i * MS_PER_DAY);
-      dayLabels.push(DAY_NAMES[d.getDay()]);
+      const dayIdx = (today - currentDayIndex + i + 7) % 7;
+      dayLabels.push(DAY_NAMES[dayIdx]);
     }
 
     return { weekStart, currentDayIndex, fractionOfDay, dayLabels };
