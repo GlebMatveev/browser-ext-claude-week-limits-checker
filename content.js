@@ -100,7 +100,12 @@
     const remainingMs = resetTime.getTime() - now.getTime();
     const remainingDays = Math.max(0.01, remainingMs / MS_PER_DAY);
     const remainingBudget = Math.max(0, 100 - usagePercent);
-    const adaptiveDailyBudget = remainingBudget / remainingDays;
+
+    const futureDays = 6 - currentDayIndex;
+    const currentDaySegStart = (currentDayIndex / 7) * 100;
+    const progressReachedCurrentDay = usagePercent > currentDaySegStart;
+    const divisor = Math.max(1, futureDays + (progressReachedCurrentDay ? 0 : 1));
+    const adaptiveDailyBudget = remainingBudget / divisor;
 
     const segments = [];
     for (let i = 0; i < 7; i++) {
@@ -129,7 +134,7 @@
       segments.push({ fill, colorClass });
     }
 
-    return { segments, adaptiveDailyBudget, remainingDays };
+    return { segments, adaptiveDailyBudget, remainingDays, progressReachedCurrentDay };
   }
 
   // --- Rendering ---
@@ -236,13 +241,18 @@
     container.id = CONTAINER_ID;
     container.className = "claude-budget-tracker";
 
+    const divisor = adaptiveData.progressReachedCurrentDay
+      ? 6 - currentDayIndex
+      : 7 - currentDayIndex;
     const adaptiveStatus =
-      `Adaptive budget: ~${adaptiveData.adaptiveDailyBudget.toFixed(1)}% per remaining day (${adaptiveData.remainingDays.toFixed(1)} days left)`;
+      `Adaptive budget: ~${adaptiveData.adaptiveDailyBudget.toFixed(1)}% × ${divisor} remaining day${divisor !== 1 ? "s" : ""}`;
 
-    // Build segment labels for future days
-    const adaptiveLabels = dayLabels.map((_, i) =>
-      i >= currentDayIndex ? adaptiveData.adaptiveDailyBudget.toFixed(1) + "%" : null
-    );
+    // Build segment labels — only for segments without fill
+    const adaptiveLabels = dayLabels.map((_, i) => {
+      if (i < currentDayIndex) return null;
+      if (i === currentDayIndex && adaptiveData.progressReachedCurrentDay) return null;
+      return adaptiveData.adaptiveDailyBudget.toFixed(1) + "%";
+    });
 
     container.appendChild(
       createBarBlock(
