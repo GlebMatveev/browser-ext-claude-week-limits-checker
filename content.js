@@ -22,9 +22,11 @@
     if (!weeklySection) return null;
 
     const rows = weeklySection.querySelectorAll('[role="progressbar"]');
+    let firstRow = null;
     for (const bar of rows) {
       const row = bar.closest(".flex.flex-row");
       if (!row) continue;
+      if (!firstRow) firstRow = { row, bar };
       const labels = row.querySelectorAll("p");
       for (const label of labels) {
         if (label.textContent.trim() === "All models") {
@@ -32,14 +34,15 @@
         }
       }
     }
-    return null;
+    return firstRow;
   }
 
   function getResetText(row) {
     const paragraphs = row.querySelectorAll("p");
     for (const p of paragraphs) {
-      if (/^Resets\s+\w+\s+\d/i.test(p.textContent.trim())) {
-        return p.textContent.trim();
+      const text = p.textContent.trim();
+      if (/^Resets\s+(in\s+|\w+\s+\d)/i.test(text)) {
+        return text;
       }
     }
     return null;
@@ -48,30 +51,44 @@
   // --- Time calculations ---
 
   function parseResetTime(text) {
-    const match = text.match(
-      /Resets\s+(\w+)\s+(\d{1,2}):(\d{2})\s*(AM|PM)/i
+    // New format: "Resets in X days Y hr Z min" (any subset)
+    const rel = text.match(
+      /Resets\s+in\s+(?:(\d+)\s*day[s]?)?\s*(?:(\d+)\s*hr)?\s*(?:(\d+)\s*min)?/i
     );
-    if (!match) return null;
+    if (rel && (rel[1] || rel[2] || rel[3])) {
+      const days = parseInt(rel[1] || "0", 10);
+      const hours = parseInt(rel[2] || "0", 10);
+      const minutes = parseInt(rel[3] || "0", 10);
+      const totalMs = ((days * 24 + hours) * 60 + minutes) * 60 * 1000;
+      if (totalMs > 0) return new Date(Date.now() + totalMs);
+    }
 
-    const [, dayStr, hourStr, minStr, ampm] = match;
-    let hours = parseInt(hourStr, 10);
-    if (ampm.toUpperCase() === "PM" && hours !== 12) hours += 12;
-    if (ampm.toUpperCase() === "AM" && hours === 12) hours = 0;
-    const minutes = parseInt(minStr, 10);
+    // Legacy format fallback: "Resets Sat 4:00 PM"
+    const abs = text.match(/Resets\s+(\w+)\s+(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+    if (abs) {
+      const [, dayStr, hourStr, minStr, ampm] = abs;
+      let hours = parseInt(hourStr, 10);
+      if (ampm.toUpperCase() === "PM" && hours !== 12) hours += 12;
+      if (ampm.toUpperCase() === "AM" && hours === 12) hours = 0;
+      const minutes = parseInt(minStr, 10);
 
-    const dayMap = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
-    const targetDay = dayMap[dayStr.toLowerCase().slice(0, 3)];
-    if (targetDay === undefined) return null;
+      const dayMap = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
+      const targetDay = dayMap[dayStr.toLowerCase().slice(0, 3)];
+      if (targetDay === undefined) return null;
 
-    const now = new Date();
-    const reset = new Date(now);
-    reset.setHours(hours, minutes, 0, 0);
+      const now = new Date();
+      const reset = new Date(now);
+      reset.setHours(hours, minutes, 0, 0);
 
-    let diff = (targetDay - now.getDay() + 7) % 7;
-    if (diff === 0 && now >= reset) diff = 7;
-    reset.setDate(now.getDate() + diff);
+      let diff = (targetDay - now.getDay() + 7) % 7;
+      if (diff === 0 && now >= reset) diff = 7;
+      reset.setDate(now.getDate() + diff);
 
-    return reset;
+      return reset;
+    }
+
+    console.warn("[CBT] Could not parse reset text:", text);
+    return null;
   }
 
   function calculateWeekBounds(resetTime) {
