@@ -204,9 +204,9 @@
     });
     barWrapper.appendChild(dayRow);
 
-    // Segmented bar — self-styled via styles.css to avoid breakage when claude.com tokens change
+    // Segmented bar — uses claude.com's bg-alpha-2 utility for matching color, with cbt-bar fallback
     const bar = document.createElement("div");
-    bar.className = "cbt-bar";
+    bar.className = "cbt-bar bg-alpha-2 bg-bg-000";
 
     segments.forEach((seg, i) => {
       const segment = document.createElement("div");
