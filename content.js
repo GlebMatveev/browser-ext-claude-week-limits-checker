@@ -11,11 +11,14 @@
   // --- DOM helpers ---
 
   function findWeeklyAllModelsRow() {
-    const headings = document.querySelectorAll("h2");
+    const headings = document.querySelectorAll("h2, h3");
     let weeklySection = null;
     for (const h of headings) {
       if (h.textContent.trim() === "Weekly limits") {
-        weeklySection = h.closest(".space-y-6") || h.parentElement;
+        weeklySection =
+          h.closest("section") ||
+          h.closest(".space-y-6") ||
+          h.parentElement;
         break;
       }
     }
@@ -27,7 +30,7 @@
       const row = bar.closest(".flex.flex-row");
       if (!row) continue;
       if (!firstRow) firstRow = { row, bar };
-      const labels = row.querySelectorAll("p");
+      const labels = row.querySelectorAll("p, span");
       for (const label of labels) {
         if (label.textContent.trim() === "All models") {
           return { row, bar };
@@ -38,9 +41,9 @@
   }
 
   function getResetText(row) {
-    const paragraphs = row.querySelectorAll("p");
-    for (const p of paragraphs) {
-      const text = p.textContent.trim();
+    const elements = row.querySelectorAll("p, span");
+    for (const el of elements) {
+      const text = el.textContent.trim();
       if (/^Resets\s+(in\s+|\w+\s+\d)/i.test(text)) {
         return text;
       }
@@ -201,10 +204,9 @@
     });
     barWrapper.appendChild(dayRow);
 
-    // Segmented bar — uses same Tailwind classes as original claude.ai progressbar
+    // Segmented bar — self-styled via styles.css to avoid breakage when claude.com tokens change
     const bar = document.createElement("div");
-    bar.className = "w-full bg-bg-000 rounded border border-border-300 shadow-sm h-4 flex";
-    bar.style.alignItems = "stretch";
+    bar.className = "cbt-bar";
 
     segments.forEach((seg, i) => {
       const segment = document.createElement("div");

@@ -78,8 +78,17 @@
   opacity: 0.7;
 }
 
-/* Segmented bar inherits styles from Tailwind classes on the element.
-   Only override what's needed for segmented layout. */
+.cbt-bar {
+  width: 100%;
+  height: 1rem;
+  display: flex;
+  align-items: stretch;
+  background-color: var(--bg-000, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--border-300, rgba(255, 255, 255, 0.08));
+  border-radius: 0.25rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
 
 .cbt-segment {
   flex: 1;
