@@ -181,7 +181,7 @@
 
     // Right side: matches original layout — flex-1 flex items-center gap-3 md:max-w-xl
     const right = document.createElement("div");
-    right.className = "flex-1 flex items-center gap-3 md:max-w-xl";
+    right.className = "flex-1 flex items-center gap-3 pl-6 md:max-w-xl";
 
     // Inner wrapper for day labels + bar
     const barWrapper = document.createElement("div");
