@@ -161,11 +161,13 @@
 
   function createBarBlock(label, segments, dayLabels, currentDayIndex, statusText, segmentLabels, fractionOfDay) {
     const block = document.createElement("div");
-    block.className = "cbt-bar-block cbt-bar-row";
+    // Mirror the native usage row's layout classes so spacing tokens
+    // (gap-x-lg, w-[13rem]) come from claude.com and stay aligned.
+    block.className = "flex w-full flex-row flex-wrap items-center justify-between gap-x-lg gap-y-3";
 
     // Left side: label + status
     const left = document.createElement("div");
-    left.className = "cbt-bar-left";
+    left.className = "cbt-bar-left flex w-[13rem] shrink-0 flex-col gap-xs";
 
     const labelEl = document.createElement("p");
     labelEl.className = "cbt-label";
