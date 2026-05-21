@@ -361,8 +361,8 @@
   // --- Main logic ---
 
   function update() {
-    if (!window.location.pathname.includes("/settings/usage")) return;
-
+    // Settings (incl. usage) is now a modal that can open over any URL,
+    // so don't gate on the path — just look for the weekly section.
     const found = findWeeklyAllModelsRow();
     if (!found) return;
 
@@ -406,8 +406,9 @@
       }
     });
 
-    const target = document.getElementById("main-content") || document.body;
-    observer.observe(target, {
+    // Observe the whole body: the settings modal renders in a portal at
+    // body level, outside #main-content.
+    observer.observe(document.body, {
       childList: true,
       subtree: true,
       attributes: true,
